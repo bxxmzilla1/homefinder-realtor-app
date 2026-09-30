@@ -12,77 +12,123 @@ struct FiltersView: View {
 
     var body: some View {
         NavigationView {
-            Form {
-                Section("Listing type") {
-                    Picker("Transaction", selection: $draft.transaction) {
-                        ForEach(SearchFilters.Transaction.allCases) { Text($0.label).tag($0) }
-                    }
-                    .pickerStyle(.segmented)
-                    .onChange(of: draft.transaction) { _ in
-                        draft.minPrice = nil
-                        draft.maxPrice = nil
-                    }
+            form
+                .navigationTitle("Filters")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar { toolbarContent }
+        }
+        .navigationViewStyle(.stack)
+    }
 
-                    Picker("Property type", selection: $draft.propertyClass) {
-                        ForEach(SearchFilters.PropertyClass.allCases) { Text($0.label).tag($0) }
-                    }
-                }
-
-                Section(draft.transaction == .sale ? "Price" : "Monthly rent") {
-                    Picker("Minimum", selection: $draft.minPrice) {
-                        Text("No min").tag(Int?.none)
-                        ForEach(draft.priceOptions, id: \.self) { Text(Format.price(Double($0))).tag(Int?.some($0)) }
-                    }
-                    Picker("Maximum", selection: $draft.maxPrice) {
-                        Text("No max").tag(Int?.none)
-                        ForEach(draft.priceOptions, id: \.self) { Text(Format.price(Double($0))).tag(Int?.some($0)) }
-                    }
-                }
-
-                Section("Rooms") {
-                    Picker("Bedrooms", selection: $draft.minBeds) {
-                        Text("Any").tag(0)
-                        ForEach(1...5, id: \.self) { Text("\($0)+").tag($0) }
-                    }
-                    Picker("Bathrooms", selection: $draft.minBaths) {
-                        Text("Any").tag(0)
-                        ForEach(1...5, id: \.self) { Text("\($0)+").tag($0) }
-                    }
-                }
-
-                Section("Keywords") {
-                    TextField("e.g. pool, garage, waterfront", text: $draft.keywords)
-                        .disableAutocorrection(true)
-                        .textInputAutocapitalization(.never)
-                }
-
-                Section("Sort by") {
-                    Picker("Sort", selection: $draft.sort) {
-                        ForEach(SearchFilters.Sort.allCases) { Text($0.label).tag($0) }
-                    }
-                }
-
-                Section {
-                    Button("Reset filters", role: .destructive) {
-                        draft = SearchFilters(transaction: draft.transaction)
-                    }
-                }
-            }
-            .navigationTitle("Filters")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Apply") {
-                        onApply(draft)
-                        dismiss()
-                    }
-                    .font(.body.bold())
+    private var form: some View {
+        Form {
+            listingTypeSection
+            priceSection
+            roomsSection
+            keywordsSection
+            sortSection
+            Section {
+                Button("Reset filters", role: .destructive) {
+                    draft = SearchFilters(transaction: draft.transaction)
                 }
             }
         }
-        .navigationViewStyle(.stack)
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .cancellationAction) {
+            Button("Cancel") { dismiss() }
+        }
+        ToolbarItem(placement: .confirmationAction) {
+            Button("Apply") {
+                onApply(draft)
+                dismiss()
+            }
+            .font(.body.bold())
+        }
+    }
+
+    private var listingTypeSection: some View {
+        Section(header: Text("Listing type")) {
+            Picker("Transaction", selection: $draft.transaction) {
+                ForEach(SearchFilters.Transaction.allCases) { option in
+                    Text(option.label).tag(option)
+                }
+            }
+            .pickerStyle(.segmented)
+            .onChange(of: draft.transaction) { _ in
+                draft.minPrice = nil
+                draft.maxPrice = nil
+            }
+
+            Picker("Property type", selection: $draft.propertyClass) {
+                ForEach(SearchFilters.PropertyClass.allCases) { option in
+                    Text(option.label).tag(option)
+                }
+            }
+        }
+    }
+
+    private var priceSection: some View {
+        Section(header: Text(draft.transaction == .sale ? "Price" : "Monthly rent")) {
+            PricePicker(title: "Minimum", noneLabel: "No min", options: draft.priceOptions, selection: $draft.minPrice)
+            PricePicker(title: "Maximum", noneLabel: "No max", options: draft.priceOptions, selection: $draft.maxPrice)
+        }
+    }
+
+    private var roomsSection: some View {
+        Section(header: Text("Rooms")) {
+            RoomPicker(title: "Bedrooms", selection: $draft.minBeds)
+            RoomPicker(title: "Bathrooms", selection: $draft.minBaths)
+        }
+    }
+
+    private var keywordsSection: some View {
+        Section(header: Text("Keywords")) {
+            TextField("e.g. pool, garage, waterfront", text: $draft.keywords)
+                .disableAutocorrection(true)
+                .textInputAutocapitalization(.never)
+        }
+    }
+
+    private var sortSection: some View {
+        Section(header: Text("Sort by")) {
+            Picker("Sort", selection: $draft.sort) {
+                ForEach(SearchFilters.Sort.allCases) { option in
+                    Text(option.label).tag(option)
+                }
+            }
+        }
+    }
+}
+
+private struct PricePicker: View {
+    let title: String
+    let noneLabel: String
+    let options: [Int]
+    @Binding var selection: Int?
+
+    var body: some View {
+        Picker(title, selection: $selection) {
+            Text(noneLabel).tag(Int?.none)
+            ForEach(options, id: \.self) { value in
+                Text(Format.price(Double(value))).tag(Int?.some(value))
+            }
+        }
+    }
+}
+
+private struct RoomPicker: View {
+    let title: String
+    @Binding var selection: Int
+
+    var body: some View {
+        Picker(title, selection: $selection) {
+            Text("Any").tag(0)
+            ForEach(1...5, id: \.self) { value in
+                Text("\(value)+").tag(value)
+            }
+        }
     }
 }
