@@ -169,16 +169,16 @@ struct ContentView: View {
             ) { sheet = .filters }
 
             Picker("", selection: Binding(
-                get: { vm.filters.transaction },
+                get: { vm.filters.listingType },
                 set: { newValue in
                     var updated = vm.filters
-                    updated.transaction = newValue
+                    updated.listingType = newValue
                     updated.minPrice = nil
                     updated.maxPrice = nil
                     vm.filters = updated
                 }
             )) {
-                ForEach(SearchFilters.Transaction.allCases) { Text($0.label).tag($0) }
+                ForEach(SearchFilters.ListingType.allCases) { Text($0.label).tag($0) }
             }
             .pickerStyle(.segmented)
             .frame(maxWidth: 180)

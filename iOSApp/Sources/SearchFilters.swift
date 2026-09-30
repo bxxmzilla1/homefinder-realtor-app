@@ -1,7 +1,7 @@
 import Foundation
 
 struct SearchFilters: Equatable {
-    enum Transaction: String, CaseIterable, Identifiable {
+    enum ListingType: String, CaseIterable, Identifiable {
         case sale, lease
         var id: String { rawValue }
         var label: String { self == .sale ? "For sale" : "For rent" }
@@ -44,7 +44,7 @@ struct SearchFilters: Equatable {
         500, 1_000, 1_500, 2_000, 2_500, 3_000, 3_500, 4_000, 5_000, 7_500, 10_000,
     ]
 
-    var transaction: Transaction = .sale
+    var listingType: ListingType = .sale
     var propertyClass: PropertyClass = .any
     var minPrice: Int?
     var maxPrice: Int?
@@ -54,7 +54,7 @@ struct SearchFilters: Equatable {
     var sort: Sort = .newest
 
     var priceOptions: [Int] {
-        transaction == .sale ? Self.salePrices : Self.leasePrices
+        listingType == .sale ? Self.salePrices : Self.leasePrices
     }
 
     var activeCount: Int {
@@ -71,7 +71,7 @@ struct SearchFilters: Equatable {
     var queryItems: [String: String] {
         var q: [String: String] = [
             "status": "A",
-            "type": transaction.rawValue,
+            "type": listingType.rawValue,
             "sortBy": sort.rawValue,
         ]
         if propertyClass != .any { q["class"] = propertyClass.rawValue }

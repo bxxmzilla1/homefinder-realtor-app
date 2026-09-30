@@ -29,7 +29,7 @@ struct FiltersView: View {
             sortSection
             Section {
                 Button("Reset filters", role: .destructive) {
-                    draft = SearchFilters(transaction: draft.transaction)
+                    draft = SearchFilters(listingType: draft.listingType)
                 }
             }
         }
@@ -51,13 +51,13 @@ struct FiltersView: View {
 
     private var listingTypeSection: some View {
         Section(header: Text("Listing type")) {
-            Picker("Transaction", selection: $draft.transaction) {
-                ForEach(SearchFilters.Transaction.allCases) { option in
+            Picker("Listing type", selection: $draft.listingType) {
+                ForEach(SearchFilters.ListingType.allCases) { option in
                     Text(option.label).tag(option)
                 }
             }
             .pickerStyle(.segmented)
-            .onChange(of: draft.transaction) { _ in
+            .onChange(of: draft.listingType) { _ in
                 draft.minPrice = nil
                 draft.maxPrice = nil
             }
@@ -71,7 +71,7 @@ struct FiltersView: View {
     }
 
     private var priceSection: some View {
-        Section(header: Text(draft.transaction == .sale ? "Price" : "Monthly rent")) {
+        Section(header: Text(draft.listingType == .sale ? "Price" : "Monthly rent")) {
             PricePicker(title: "Minimum", noneLabel: "No min", options: draft.priceOptions, selection: $draft.minPrice)
             PricePicker(title: "Maximum", noneLabel: "No max", options: draft.priceOptions, selection: $draft.maxPrice)
         }
