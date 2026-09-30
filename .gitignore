@@ -1,0 +1,13 @@
+node_modules/
+.env
+.playwright/
+*.log
+
+# iOS build outputs
+iOSApp/*.xcodeproj/
+iOSApp/Info.plist
+iOSApp/build/
+iOSApp/Payload/
+*.ipa
+ipa_build/
+dist/
