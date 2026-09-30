@@ -56,6 +56,14 @@ Common search params (full list in the [Repliers listings docs](https://docs.rep
 
 `mls_number`, `board_id`, `status`, `transaction_type`, `price`, `list_date`, `address_full`, `city`, `neighborhood`, `postal_code`, `province`, `lat`, `lon`, `property_type`, `style`, `beds`, `beds_plus`, `baths`, `sqft`, `description`, `photo_url`, `photo_urls`, `agent_name`, `agent_brokerage`.
 
+## iOS app (HomeFinder)
+
+`iOSApp/` is a SwiftUI app (iOS 15+) with a map of price pins that reloads as you pan and zoom, a list view, filters, location search, and listing details with directions.
+
+- Every push to `iOSApp/**` builds an unsigned `.ipa` on GitHub Actions (`.github/workflows/app.yml`). Download it with `gh run download <run-id> -D ipa_build`.
+- The repo secrets `APP_SERVER_URL` and `APP_API_KEY` become the app's default server settings; you can change both in the app's Settings screen.
+- The phone reaches this server over your Wi-Fi at `http://<PC LAN IP>:3000`, so inbound TCP 3000 must be allowed in Windows Firewall.
+
 ## Environment
 
 | Variable | Required | Description |
